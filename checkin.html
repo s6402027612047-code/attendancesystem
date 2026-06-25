@@ -3,9 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ลงเวลาเข้า-ออกงาน</title>
+<title>ลงเวลาเข้า-ออกงาน · Attendance Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
+  :root{
     --navy-950:#0b1220;
     --navy-900:#101a2c;
     --navy-800:#16223b;
@@ -142,19 +145,41 @@
 </head>
 <body>
 
-<h2>🕒 ลงเวลาเข้า-ออกงาน</h2>
+<div class="sheet">
 
-<video id="video" autoplay playsinline muted></video>
+  <div class="topstrip">
+    <div class="brand">
+      <span class="dot"></span>
+      <span>Attendance Clock</span>
+    </div>
+    <div id="clock">--:--:--</div>
+  </div>
 
-<div id="detected">กำลังเตรียมระบบ...</div>
+  <h1>ลงเวลาเข้า-ออกงาน</h1>
+  <p class="sub">หันหน้าเข้ากรอบกล้อง ระบบจะจดจำชื่อให้อัตโนมัติ จากนั้นกดปุ่มเข้าหรือออกงาน</p>
 
-<div class="row">
-  <button id="inBtn" disabled>✅ CHECK IN</button>
-  <button id="outBtn" disabled>🚪 CHECK OUT</button>
+  <div class="card">
+
+    <div class="viewfinder" id="viewfinder">
+      <video id="video" autoplay playsinline muted></video>
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <div class="idtag" id="detected">กำลังเตรียมระบบ...</div>
+    </div>
+
+    <div class="row">
+      <button id="inBtn" disabled>✅ CHECK IN</button>
+      <button id="outBtn" disabled>🚪 CHECK OUT</button>
+    </div>
+
+    <div id="status"></div>
+  </div>
+
+  <div class="foot">ระบบตรวจสอบตำแหน่ง GPS และถ่ายภาพหลักฐานทุกครั้งที่ลงเวลา</div>
+
 </div>
-
-<div id="status"></div>
-
 <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
 // ⚠️ ต้องตรงกับ API_SECRET ใน Code.gs และต้องเป็นค่าเดียวกันทุกหน้า
