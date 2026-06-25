@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ลงทะเบียนพนักงาน</title>
+<title>ลงทะเบียนใบหน้า · Attendance Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --navy-950:#0b1220;
@@ -153,17 +156,50 @@
 </head>
 <body>
 
-<h2>📷 ลงทะเบียนใบหน้าพนักงาน</h2>
+<div class="sheet">
 
-<input id="name" placeholder="ชื่อ-นามสกุล">
-<input id="department" placeholder="แผนก (ไม่จำเป็น)">
+  <div class="topstrip">
+    <div class="brand">
+      <span class="dot"></span>
+      <span>Attendance Clock</span>
+    </div>
+    <div class="badge">ลงทะเบียน</div>
+  </div>
 
-<video id="video" autoplay playsinline muted></video>
-<canvas id="overlay" style="display:none;"></canvas>
+  <h1>เพิ่มข้อมูลใบหน้าพนักงาน</h1>
+  <p class="sub">กรอกชื่อแล้ววางหน้าให้อยู่ในกรอบ ระบบจะบันทึกข้อมูลใบหน้าไว้ใช้สแกนเข้า-ออกงาน</p>
 
-<button id="captureBtn" disabled>กำลังโหลดระบบจดจำใบหน้า...</button>
+  <div class="card">
 
-<div id="status"></div>
+    <div class="field">
+      <label>ชื่อ-นามสกุล</label>
+      <input id="name" placeholder="เช่น สมชาย ใจดี">
+    </div>
+
+    <div class="field">
+      <label>แผนก (ไม่จำเป็น)</label>
+      <input id="department" placeholder="เช่น ฝ่ายขาย">
+    </div>
+
+    <label>วางใบหน้าในกรอบ</label>
+    <div class="viewfinder">
+      <video id="video" autoplay playsinline muted></video>
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <div class="scanline"></div>
+    </div>
+
+    <button id="captureBtn" disabled>กำลังโหลดระบบจดจำใบหน้า...</button>
+
+    <div id="status"></div>
+  </div>
+
+  <div class="foot">ข้อมูลใบหน้านี้ใช้สำหรับยืนยันตัวตนตอนลงเวลาเข้า-ออกงานเท่านั้น</div>
+
+</div>
+
 
 <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
