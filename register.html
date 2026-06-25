@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ลงทะเบียนพนักงาน</title>
+<style>
+  body { font-family: sans-serif; max-width: 480px; margin: 20px auto; padding: 0 16px; }
+  h2 { text-align: center; }
+  video, canvas { width: 100%; border-radius: 8px; background: #222; }
+  input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; font-size: 16px; }
+  button { width: 100%; padding: 14px; font-size: 16px; border: none; border-radius: 8px;
+           background: #2563eb; color: white; margin-top: 10px; }
+  button:disabled { background: #999; }
+  #status { text-align: center; margin-top: 12px; font-weight: bold; }
+  .ok { color: green; }
+  .err { color: red; }
+</style>
+</head>
+<body>
+
+<h2>📷 ลงทะเบียนใบหน้าพนักงาน</h2>
+
+<input id="name" placeholder="ชื่อ-นามสกุล">
+<input id="department" placeholder="แผนก (ไม่จำเป็น)">
+
+<video id="video" autoplay playsinline muted></video>
+<canvas id="overlay" style="display:none;"></canvas>
+
+<button id="captureBtn" disabled>กำลังโหลดระบบจดจำใบหน้า...</button>
+
+<div id="status"></div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+// ⚠️ ต้องตรงกับ API_SECRET ใน Code.gs และต้องเป็นค่าเดียวกันทุกหน้า
+const API_SECRET = "ํTEST_API_V01";
+// ⚠️ วาง URL ของ Web App ที่ deploy แล้วตรงนี้
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwYKGuOJTYPf8dg7NSpIjARtQwNNDZ4fdbBfPBs7uhG3-Ck3sJMGhfrGIjsUU6d91liJQ/exec";
+
+const video = document.getElementById("video");
+const captureBtn = document.getElementById("captureBtn");
+const statusEl = document.getElementById("status");
+
+let modelsLoaded = false;
+
+async function init() {
+  // โหลดโมเดลจาก CDN (ไม่ต้องเก็บไฟล์โมเดลเอง)
+  const MODEL_URL = "https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights";
+  await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+  modelsLoaded = true;
+  captureBtn.disabled = false;
+  captureBtn.textContent = "📸 ถ่ายภาพและลงทะเบียน";
+
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+}
+
+async function captureAndRegister() {
+  const name = document.getElementById("name").value.trim();
+  const department = document.getElementById("department").value.trim();
+
+  if (!name) {
+    setStatus("กรุณากรอกชื่อ-นามสกุล", false);
+    return;
+  }
+  if (!modelsLoaded) return;
+
+  captureBtn.disabled = true;
+  setStatus("กำลังตรวจจับใบหน้า...", true);
+
+  const detection = await faceapi
+    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  if (!detection) {
+    setStatus("ไม่พบใบหน้า กรุณาหันหน้าเข้ากล้องให้ชัดเจน", false);
+    captureBtn.disabled = false;
+    return;
+  }
+
+  const descriptor = Array.from(detection.descriptor);
+
+  setStatus("กำลังบันทึกข้อมูล...", true);
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "register",
+        secret: API_SECRET,
+        name: name,
+        department: department,
+        descriptor: descriptor
+      })
+    });
+    const data = await res.json();
+
+    if (data.status === "success") {
+      setStatus("✅ ลงทะเบียนสำเร็จ! รหัสพนักงาน: " + data.empid, true);
+      document.getElementById("name").value = "";
+      document.getElementById("department").value = "";
+    } else {
+      setStatus("❌ " + data.message, false);
+    }
+  } catch (err) {
+    setStatus("❌ เชื่อมต่อไม่สำเร็จ: " + err.message, false);
+  }
+
+  captureBtn.disabled = false;
+}
+
+function setStatus(msg, ok) {
+  statusEl.textContent = msg;
+  statusEl.className = ok ? "ok" : "err";
+}
+
+captureBtn.addEventListener("click", captureAndRegister);
+window.addEventListener("load", init);
+</script>
+
+</body>
+</html>

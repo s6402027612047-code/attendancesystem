@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ลงเวลาเข้า-ออกงาน</title>
+<style>
+  body { font-family: sans-serif; max-width: 480px; margin: 20px auto; padding: 0 16px; }
+  h2 { text-align: center; }
+  video { width: 100%; border-radius: 8px; background: #222; }
+  .row { display: flex; gap: 10px; margin-top: 10px; }
+  button { flex: 1; padding: 16px; font-size: 16px; border: none; border-radius: 8px; color: white; }
+  #inBtn { background: #16a34a; }
+  #outBtn { background: #dc2626; }
+  button:disabled { background: #999; }
+  #status { text-align: center; margin-top: 14px; font-weight: bold; min-height: 24px; }
+  #detected { text-align: center; margin-top: 8px; color: #2563eb; font-weight: bold; }
+  .ok { color: green; }
+  .err { color: red; }
+</style>
+</head>
+<body>
+
+<h2>🕒 ลงเวลาเข้า-ออกงาน</h2>
+
+<video id="video" autoplay playsinline muted></video>
+
+<div id="detected">กำลังเตรียมระบบ...</div>
+
+<div class="row">
+  <button id="inBtn" disabled>✅ CHECK IN</button>
+  <button id="outBtn" disabled>🚪 CHECK OUT</button>
+</div>
+
+<div id="status"></div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+// ⚠️ ต้องตรงกับ API_SECRET ใน Code.gs และต้องเป็นค่าเดียวกันทุกหน้า
+const API_SECRET = "ํTEST_API_V01";
+// ⚠️ วาง URL ของ Web App ที่ deploy แล้วตรงนี้
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwYKGuOJTYPf8dg7NSpIjARtQwNNDZ4fdbBfPBs7uhG3-Ck3sJMGhfrGIjsUU6d91liJQ/exec";
+const FACE_MATCH_THRESHOLD = 0.5;
+
+const video = document.getElementById("video");
+const inBtn = document.getElementById("inBtn");
+const outBtn = document.getElementById("outBtn");
+const statusEl = document.getElementById("status");
+const detectedEl = document.getElementById("detected");
+
+let employees = [];
+let currentMatch = null;
+let modelsLoaded = false;
+
+async function init() {
+  const MODEL_URL = "https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights";
+  await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+  await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+  await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+  modelsLoaded = true;
+
+  detectedEl.textContent = "กำลังโหลดรายชื่อพนักงาน...";
+  const res = await fetch(
+    WEBAPP_URL + "?action=getEmployees&secret=" + encodeURIComponent(API_SECRET)
+  );
+  const data = await res.json();
+  if (data.status === "success") {
+    employees = data.data;
+    detectedEl.textContent = "หันหน้าเข้ากล้องเพื่อสแกน...";
+  } else {
+    detectedEl.textContent = "โหลดรายชื่อพนักงานไม่สำเร็จ: " + data.message;
+    return;
+  }
+
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+
+  recognizeLoop();
+}
+
+async function recognizeLoop() {
+  setInterval(async () => {
+    if (!modelsLoaded || employees.length === 0) return;
+
+    const detection = await faceapi
+      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (!detection) {
+      currentMatch = null;
+      detectedEl.textContent = "ไม่พบใบหน้า กรุณาหันหน้าเข้ากล้อง";
+      inBtn.disabled = true;
+      outBtn.disabled = true;
+      return;
+    }
+
+    let best = null;
+    let bestDist = Infinity;
+
+    for (const emp of employees) {
+      const dist = faceapi.euclideanDistance(detection.descriptor, emp.descriptor);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = emp;
+      }
+    }
+
+    if (best && bestDist < FACE_MATCH_THRESHOLD) {
+      currentMatch = best;
+      detectedEl.textContent = "✅ พบ: " + best.name + " (" + best.empid + ")";
+      inBtn.disabled = false;
+      outBtn.disabled = false;
+    } else {
+      currentMatch = null;
+      detectedEl.textContent = "❌ ไม่พบในระบบ ไม่สามารถลงเวลาได้";
+      inBtn.disabled = true;
+      outBtn.disabled = true;
+    }
+  }, 1000);
+}
+
+function getLocation() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: true,
+      timeout: 10000
+    });
+  });
+}
+
+function captureSnapshot() {
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  return canvas.toDataURL("image/jpeg", 0.7);
+}
+
+async function submitAttendance(action) {
+  if (!currentMatch) return;
+
+  inBtn.disabled = true;
+  outBtn.disabled = true;
+  setStatus("กำลังตรวจสอบตำแหน่ง GPS...", true);
+
+  let pos;
+  try {
+    pos = await getLocation();
+  } catch (err) {
+    setStatus("❌ ไม่สามารถดึงตำแหน่ง GPS ได้ กรุณาเปิดอนุญาตตำแหน่ง", false);
+    inBtn.disabled = false;
+    outBtn.disabled = false;
+    return;
+  }
+
+  setStatus("กำลังส่งข้อมูล...", true);
+  const image = captureSnapshot();
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: action,
+        secret: API_SECRET,
+        empid: currentMatch.empid,
+        name: currentMatch.name,
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        image: image
+      })
+    });
+    const data = await res.json();
+
+    if (data.status === "success") {
+      setStatus("✅ " + data.message + " (ห่างจุดออฟฟิศ " + data.distance + " ม.)", true);
+    } else {
+      setStatus("❌ " + data.message, false);
+    }
+  } catch (err) {
+    setStatus("❌ เชื่อมต่อไม่สำเร็จ: " + err.message, false);
+  }
+
+  inBtn.disabled = false;
+  outBtn.disabled = false;
+}
+
+function setStatus(msg, ok) {
+  statusEl.textContent = msg;
+  statusEl.className = ok ? "ok" : "err";
+}
+
+inBtn.addEventListener("click", () => submitAttendance("checkin"));
+outBtn.addEventListener("click", () => submitAttendance("checkout"));
+window.addEventListener("load", init);
+</script>
+
+</body>
+</html>
