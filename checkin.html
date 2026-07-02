@@ -7,332 +7,174 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 <style>
   :root{
-    --navy-950:#0b1220;
-    --navy-900:#101a2c;
-    --navy-800:#16223b;
-    --navy-700:#1f2f4d;
-    --amber:#f4a623;
-    --mint:#3ddc97;
-    --red:#ff6b6b;
-    --ink-0:#f4f6fb;
-    --ink-1:#aab4c8;
-    --ink-2:#6b7a96;
+    --navy-950:#0b1220; --navy-900:#101a2c; --navy-800:#16223b; --navy-700:#1f2f4d;
+    --amber:#f4a623; --mint:#3ddc97; --red:#ff6b6b;
+    --ink-0:#f4f6fb; --ink-1:#aab4c8; --ink-2:#6b7a96;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; }
   body{
     min-height:100vh;
-    background:
-      radial-gradient(circle at 50% -10%, rgba(244,166,35,0.10), transparent 55%),
-      var(--navy-950);
-    font-family:"Inter", sans-serif;
-    color:var(--ink-0);
-    display:flex;
-    justify-content:center;
-    padding:28px 16px 60px;
+    background: radial-gradient(circle at 50% -10%, rgba(244,166,35,0.10), transparent 55%), var(--navy-950);
+    font-family:"Inter", sans-serif; color:var(--ink-0);
+    display:flex; justify-content:center; padding:28px 16px 60px;
   }
   .sheet{ width:100%; max-width:420px; }
-
-  .topstrip{
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:18px;
-  }
+  .topstrip{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
   .brand{ display:flex; align-items:center; gap:10px; }
-  .brand .dot{
-    width:9px; height:9px; border-radius:50%;
-    background:var(--amber);
-    box-shadow:0 0 0 4px rgba(244,166,35,0.18);
-  }
-  .brand span{
-    font-family:"Space Grotesk", sans-serif;
-    font-size:13px; letter-spacing:0.14em; text-transform:uppercase;
-    color:var(--ink-2);
-  }
-  #clock{
-    font-family:"Space Grotesk", sans-serif;
-    font-size:13px; color:var(--ink-1);
-    letter-spacing:0.04em;
-  }
-
-  h1{
-    font-family:"Space Grotesk", sans-serif;
-    font-size:25px; font-weight:700; line-height:1.25;
-    margin:4px 0 4px;
-  }
+  .brand .dot{ width:9px; height:9px; border-radius:50%; background:var(--amber); box-shadow:0 0 0 4px rgba(244,166,35,0.18); }
+  .brand span{ font-family:"Space Grotesk",sans-serif; font-size:13px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-2); }
+  #clock{ font-family:"Space Grotesk",sans-serif; font-size:13px; color:var(--ink-1); letter-spacing:0.04em; }
+  h1{ font-family:"Space Grotesk",sans-serif; font-size:25px; font-weight:700; line-height:1.25; margin:4px 0 4px; }
   .sub{ color:var(--ink-1); font-size:14px; margin:0 0 22px; line-height:1.6; }
-
-  .card{
-    background:linear-gradient(180deg, var(--navy-800), var(--navy-900));
-    border:1px solid var(--navy-700);
-    border-radius:20px;
-    padding:20px;
-  }
-
-  .viewfinder{
-    position:relative; width:100%; aspect-ratio:1/1;
-    border-radius:18px; overflow:hidden; background:#000;
-    margin-bottom:14px; transition:box-shadow .2s;
-  }
+  .card{ background:linear-gradient(180deg,var(--navy-800),var(--navy-900)); border:1px solid var(--navy-700); border-radius:20px; padding:20px; }
+  .viewfinder{ position:relative; width:100%; aspect-ratio:1/1; border-radius:18px; overflow:hidden; background:#000; margin-bottom:14px; transition:box-shadow .2s; }
   .viewfinder.matched{ box-shadow:0 0 0 3px rgba(61,220,151,0.6); }
   .viewfinder.unmatched{ box-shadow:0 0 0 3px rgba(255,107,107,0.45); }
   video{ width:100%; height:100%; object-fit:cover; display:block; transform:scaleX(-1); }
-  .corner{
-    position:absolute; width:26px; height:26px;
-    border:3px solid var(--amber); opacity:0.9; transition:border-color .2s;
-  }
+  .corner{ position:absolute; width:26px; height:26px; border:3px solid var(--amber); opacity:0.9; transition:border-color .2s; }
   .corner.tl{ top:14px; left:14px; border-right:none; border-bottom:none; border-radius:6px 0 0 0; }
   .corner.tr{ top:14px; right:14px; border-left:none; border-bottom:none; border-radius:0 6px 0 0; }
   .corner.bl{ bottom:14px; left:14px; border-right:none; border-top:none; border-radius:0 0 0 6px; }
   .corner.br{ bottom:14px; right:14px; border-left:none; border-top:none; border-radius:0 0 6px 0; }
   .viewfinder.matched .corner{ border-color:var(--mint); }
   .viewfinder.unmatched .corner{ border-color:var(--red); }
-  .idtag{
-    position:absolute; bottom:14px; left:14px; right:14px;
-    background:rgba(11,18,32,0.72); backdrop-filter:blur(2px);
-    border-radius:10px; padding:8px 12px;
-    font-family:"Space Grotesk", sans-serif; font-size:13px;
-    text-align:center; color:var(--ink-0);
-  }
-
+  .idtag{ position:absolute; bottom:14px; left:14px; right:14px; background:rgba(11,18,32,0.72); backdrop-filter:blur(2px); border-radius:10px; padding:8px 12px; font-family:"Space Grotesk",sans-serif; font-size:13px; text-align:center; color:var(--ink-0); }
   .row{ display:flex; gap:10px; }
-  button{
-    flex:1; padding:16px; font-size:15px; font-weight:600;
-    font-family:"Space Grotesk", sans-serif; letter-spacing:0.02em;
-    border:none; border-radius:12px; cursor:pointer;
-    transition:transform .12s, opacity .15s;
-  }
+  button{ flex:1; padding:16px; font-size:15px; font-weight:600; font-family:"Space Grotesk",sans-serif; letter-spacing:0.02em; border:none; border-radius:12px; cursor:pointer; transition:transform .12s; }
   button:active{ transform:scale(0.98); }
   button:disabled{ background:var(--navy-700) !important; color:var(--ink-2) !important; cursor:default; }
   #inBtn{ background:var(--mint); color:#06281a; }
   #outBtn{ background:var(--red); color:#2a0a0a; }
+  #status{ margin-top:14px; font-size:13.5px; text-align:center; line-height:1.5; min-height:18px; }
+  #status.ok{ color:var(--mint); } #status.err{ color:var(--red); }
+  .foot{ text-align:center; color:var(--ink-2); font-size:12px; margin-top:20px; }
 
-  #status{
-    margin-top:14px; font-size:13.5px; text-align:center; line-height:1.5; min-height:18px;
-  }
-  #status.ok{ color:var(--mint); }
-  #status.err{ color:var(--red); }
-
-  .foot{
-    text-align:center; color:var(--ink-2); font-size:12px;
-    margin-top:20px; letter-spacing:0.02em;
-  }
-
-  /* ===================== SUCCESS OVERLAY ===================== */
-  .overlay{
-    display:none;
-    position:fixed; inset:0; z-index:100;
-    background:rgba(7,12,22,0.88);
-    backdrop-filter:blur(6px);
-    justify-content:center;
-    align-items:flex-end;
-    padding:0 16px 32px;
-    animation:fadeIn .22s ease;
-  }
+  /* overlay */
+  .overlay{ display:none; position:fixed; inset:0; z-index:100; background:rgba(7,12,22,0.88); backdrop-filter:blur(6px); justify-content:center; align-items:flex-end; padding:0 16px 32px; animation:fadeIn .22s ease; }
   .overlay.show{ display:flex; }
-  @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
-
-  .receipt{
-    width:100%; max-width:420px;
-    background:linear-gradient(175deg, var(--navy-800), var(--navy-900));
-    border:1px solid var(--navy-700);
-    border-radius:24px;
-    padding:28px 22px 22px;
-    animation:slideUp .28s cubic-bezier(.22,.8,.36,1);
-  }
-  @keyframes slideUp{
-    from{ transform:translateY(60px); opacity:0; }
-    to{ transform:translateY(0); opacity:1; }
-  }
-
-  .receipt-icon{
-    width:64px; height:64px;
-    border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-size:30px;
-    margin:0 auto 14px;
-  }
-  .receipt-icon.in{ background:rgba(61,220,151,0.15); }
-  .receipt-icon.out{ background:rgba(255,107,107,0.15); }
-
-  .receipt-title{
-    font-family:"Space Grotesk", sans-serif;
-    font-size:18px; font-weight:700; text-align:center;
-    margin:0 0 18px;
-  }
-  .receipt-title.in{ color:var(--mint); }
-  .receipt-title.out{ color:var(--red); }
-
-  /* รูปถ่าย */
-  .receipt-photo{
-    width:100%; aspect-ratio:4/3;
-    object-fit:cover;
-    border-radius:14px;
-    margin-bottom:18px;
-    border:1px solid var(--navy-700);
-    transform:scaleX(-1); /* mirror เพื่อให้เหมือนกล้องหน้า */
-  }
-
-  /* แถวข้อมูล */
-  .info-list{
-    display:flex; flex-direction:column; gap:10px;
-    margin-bottom:22px;
-  }
-  .info-row{
-    display:flex; align-items:flex-start;
-    gap:10px;
-  }
-  .info-icon{
-    font-size:16px; flex-shrink:0; margin-top:1px; width:22px; text-align:center;
-  }
-  .info-body{ flex:1; }
-  .info-label{
-    font-family:"Space Grotesk", sans-serif;
-    font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase;
-    color:var(--ink-2); margin-bottom:2px;
-  }
-  .info-value{
-    font-size:14.5px; color:var(--ink-0); line-height:1.4;
-    font-weight:500;
-  }
-
-  /* divider ประแจ */
-  .divider{
-    border:none; border-top:1px dashed var(--navy-700);
-    margin:0 0 18px;
-  }
-
-  .close-btn{
-    width:100%; padding:14px; font-size:15px; font-weight:600;
-    font-family:"Space Grotesk", sans-serif;
-    border:1px solid var(--navy-700); border-radius:12px;
-    background:transparent; color:var(--ink-1);
-    cursor:pointer; transition:background .15s;
-  }
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+  .receipt{ width:100%; max-width:420px; background:linear-gradient(175deg,var(--navy-800),var(--navy-900)); border:1px solid var(--navy-700); border-radius:24px; padding:28px 22px 22px; animation:slideUp .28s cubic-bezier(.22,.8,.36,1); }
+  @keyframes slideUp{ from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .receipt-icon{ width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 14px; }
+  .receipt-icon.in{ background:rgba(61,220,151,0.15); } .receipt-icon.out{ background:rgba(255,107,107,0.15); }
+  .receipt-title{ font-family:"Space Grotesk",sans-serif; font-size:18px; font-weight:700; text-align:center; margin:0 0 18px; }
+  .receipt-title.in{ color:var(--mint); } .receipt-title.out{ color:var(--red); }
+  .receipt-photo{ width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:14px; margin-bottom:18px; border:1px solid var(--navy-700); transform:scaleX(-1); }
+  .info-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:22px; }
+  .info-row{ display:flex; align-items:flex-start; gap:10px; }
+  .info-icon{ font-size:16px; flex-shrink:0; margin-top:1px; width:22px; text-align:center; }
+  .info-label{ font-family:"Space Grotesk",sans-serif; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-2); margin-bottom:2px; }
+  .info-value{ font-size:14.5px; color:var(--ink-0); line-height:1.4; font-weight:500; }
+  .divider{ border:none; border-top:1px dashed var(--navy-700); margin:0 0 18px; }
+  .close-btn{ width:100%; padding:14px; font-size:15px; font-weight:600; font-family:"Space Grotesk",sans-serif; border:1px solid var(--navy-700); border-radius:12px; background:transparent; color:var(--ink-1); cursor:pointer; transition:background .15s; flex:none; }
   .close-btn:hover{ background:var(--navy-700); color:var(--ink-0); }
+
+  /* LINE badge */
+  .line-badge{ display:flex; align-items:center; gap:8px; background:#06C755; border-radius:10px; padding:8px 14px; margin-bottom:14px; font-size:13px; font-weight:600; color:#fff; }
+  .line-badge svg{ width:18px; height:18px; fill:#fff; flex-shrink:0; }
 </style>
 </head>
 <body>
-
 <div class="sheet">
-
   <div class="topstrip">
-    <div class="brand">
-      <span class="dot"></span>
-      <span>Attendance Clock</span>
-    </div>
+    <div class="brand"><span class="dot"></span><span>Attendance Clock</span></div>
     <div id="clock">--:--:--</div>
   </div>
-
   <h1>ลงเวลาเข้า-ออกงาน</h1>
   <p class="sub">หันหน้าเข้ากรอบกล้อง ระบบจะจดจำชื่อให้อัตโนมัติ จากนั้นกดปุ่มเข้าหรือออกงาน</p>
-
   <div class="card">
+    <div id="lineBadge" style="display:none" class="line-badge">
+      <svg viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+      <span id="lineProfileName">เชื่อมต่อ LINE แล้ว</span>
+    </div>
     <div class="viewfinder" id="viewfinder">
       <video id="video" autoplay playsinline muted></video>
-      <div class="corner tl"></div>
-      <div class="corner tr"></div>
-      <div class="corner bl"></div>
-      <div class="corner br"></div>
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
       <div class="idtag" id="detected">กำลังเตรียมระบบ...</div>
     </div>
-
     <div class="row">
       <button id="inBtn" disabled>✅ CHECK IN</button>
       <button id="outBtn" disabled>🚪 CHECK OUT</button>
     </div>
-
     <div id="status"></div>
   </div>
-
   <div class="foot">ระบบตรวจสอบตำแหน่ง GPS และถ่ายภาพหลักฐานทุกครั้งที่ลงเวลา</div>
-
 </div>
 
-<!-- ===================== SUCCESS OVERLAY ===================== -->
+<!-- SUCCESS OVERLAY -->
 <div class="overlay" id="overlay">
   <div class="receipt">
-
     <div class="receipt-icon" id="receiptIcon">✅</div>
     <div class="receipt-title" id="receiptTitle">ลงเวลาเข้างานเรียบร้อยแล้ว</div>
-
     <img class="receipt-photo" id="receiptPhoto" src="" alt="ภาพถ่ายหลักฐาน">
-
     <hr class="divider">
-
     <div class="info-list">
-      <div class="info-row">
-        <div class="info-icon">👤</div>
-        <div class="info-body">
-          <div class="info-label">พนักงาน</div>
-          <div class="info-value" id="rName">-</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="info-icon">🏷️</div>
-        <div class="info-body">
-          <div class="info-label">ตำแหน่ง / แผนก</div>
-          <div class="info-value" id="rDept">-</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="info-icon">🕒</div>
-        <div class="info-body">
-          <div class="info-label">เวลา</div>
-          <div class="info-value" id="rTime">-</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="info-icon">📍</div>
-        <div class="info-body">
-          <div class="info-label">ห่างจากบริษัท</div>
-          <div class="info-value" id="rDist">-</div>
-        </div>
-      </div>
+      <div class="info-row"><div class="info-icon">👤</div><div class="info-body"><div class="info-label">พนักงาน</div><div class="info-value" id="rName">-</div></div></div>
+      <div class="info-row"><div class="info-icon">🏷️</div><div class="info-body"><div class="info-label">ตำแหน่ง / แผนก</div><div class="info-value" id="rDept">-</div></div></div>
+      <div class="info-row"><div class="info-icon">🕒</div><div class="info-body"><div class="info-label">เวลา</div><div class="info-value" id="rTime">-</div></div></div>
+      <div class="info-row"><div class="info-icon">📍</div><div class="info-body"><div class="info-label">ห่างจากบริษัท</div><div class="info-value" id="rDist">-</div></div></div>
     </div>
-
     <button class="close-btn" onclick="closeOverlay()">ปิด</button>
-
   </div>
 </div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
-// ⚠️ ต้องตรงกับ API_SECRET ใน Code.gs และต้องเป็นค่าเดียวกันทุกหน้า
-const API_SECRET = "ํTEST_API_V01";
+// ⚠️ ต้องตรงกับ Code.gs
+const API_SECRET = "TEST_API_V01";
 // ⚠️ วาง URL ของ Web App ที่ deploy แล้วตรงนี้
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwYKGuOJTYPf8dg7NSpIjARtQwNNDZ4fdbBfPBs7uhG3-Ck3sJMGhfrGIjsUU6d91liJQ/exec";
 const FACE_MATCH_THRESHOLD = 0.5;
 
-const video       = document.getElementById("video");
-const viewfinder  = document.getElementById("viewfinder");
-const inBtn       = document.getElementById("inBtn");
-const outBtn      = document.getElementById("outBtn");
-const statusEl    = document.getElementById("status");
-const detectedEl  = document.getElementById("detected");
-const clockEl     = document.getElementById("clock");
-const overlay     = document.getElementById("overlay");
+const video      = document.getElementById("video");
+const viewfinder = document.getElementById("viewfinder");
+const inBtn      = document.getElementById("inBtn");
+const outBtn     = document.getElementById("outBtn");
+const statusEl   = document.getElementById("status");
+const detectedEl = document.getElementById("detected");
+const clockEl    = document.getElementById("clock");
+const overlay    = document.getElementById("overlay");
 
 let employees    = [];
 let currentMatch = null;
 let modelsLoaded = false;
+let lineUserId   = "";
+let lineProfile  = null;
 
-/* ---------- นาฬิกา ---------- */
-function tickClock(){
-  clockEl.textContent = new Date().toLocaleTimeString("th-TH",{hour12:false});
-}
-setInterval(tickClock,1000);
-tickClock();
+// นาฬิกา
+function tickClock(){ clockEl.textContent = new Date().toLocaleTimeString("th-TH",{hour12:false}); }
+setInterval(tickClock,1000); tickClock();
 
-/* ---------- โหลดโมเดล + รายชื่อพนักงาน ---------- */
 async function init(){
+  // เริ่ม LIFF
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if(!liff.isLoggedIn()){
+      liff.login();
+      return;
+    }
+    lineProfile = await liff.getProfile();
+    lineUserId  = lineProfile.userId;
+    document.getElementById("lineBadge").style.display = "flex";
+    document.getElementById("lineProfileName").textContent =
+      lineProfile.displayName + " · เชื่อมต่อ LINE แล้ว";
+  } catch(e) {
+    console.warn("LIFF init failed (อาจรันนอก LINE):", e.message);
+  }
+
+  // โหลดโมเดลจดจำใบหน้า
   const MODEL_URL = "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights";
   await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
   await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
   await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
   modelsLoaded = true;
 
+  // โหลดรายชื่อพนักงาน
   detectedEl.textContent = "กำลังโหลดรายชื่อพนักงาน...";
   const res  = await fetch(WEBAPP_URL+"?action=getEmployees&secret="+encodeURIComponent(API_SECRET));
   const data = await res.json();
@@ -340,7 +182,7 @@ async function init(){
     employees = data.data;
     detectedEl.textContent = "หันหน้าเข้ากล้องเพื่อสแกน...";
   } else {
-    detectedEl.textContent = "โหลดรายชื่อพนักงานไม่สำเร็จ: "+data.message;
+    detectedEl.textContent = "โหลดรายชื่อไม่สำเร็จ: "+data.message;
     return;
   }
 
@@ -349,54 +191,40 @@ async function init(){
   recognizeLoop();
 }
 
-/* ---------- วนจดจำใบหน้าทุก 1 วิ ---------- */
 async function recognizeLoop(){
   setInterval(async()=>{
     if(!modelsLoaded||employees.length===0) return;
-
     const detection = await faceapi
       .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
-      .withFaceLandmarks()
-      .withFaceDescriptor();
-
+      .withFaceLandmarks().withFaceDescriptor();
     if(!detection){
-      currentMatch = null;
-      detectedEl.textContent = "ไม่พบใบหน้า กรุณาหันหน้าเข้ากล้อง";
-      viewfinder.className = "viewfinder";
-      inBtn.disabled = true; outBtn.disabled = true;
-      return;
+      currentMatch=null; detectedEl.textContent="ไม่พบใบหน้า กรุณาหันหน้าเข้ากล้อง";
+      viewfinder.className="viewfinder"; inBtn.disabled=true; outBtn.disabled=true; return;
     }
-
     let best=null, bestDist=Infinity;
     for(const emp of employees){
-      const dist = faceapi.euclideanDistance(detection.descriptor,emp.descriptor);
+      const dist=faceapi.euclideanDistance(detection.descriptor,emp.descriptor);
       if(dist<bestDist){ bestDist=dist; best=emp; }
     }
-
     if(best&&bestDist<FACE_MATCH_THRESHOLD){
-      currentMatch = best;
-      detectedEl.textContent = "✅ "+best.name+" · "+best.empid;
-      viewfinder.className = "viewfinder matched";
+      currentMatch=best;
+      detectedEl.textContent="✅ "+best.name+" · "+best.empid;
+      viewfinder.className="viewfinder matched";
       inBtn.disabled=false; outBtn.disabled=false;
     } else {
-      currentMatch = null;
-      detectedEl.textContent = "❌ ไม่พบในระบบ";
-      viewfinder.className = "viewfinder unmatched";
+      currentMatch=null; detectedEl.textContent="❌ ไม่พบในระบบ";
+      viewfinder.className="viewfinder unmatched";
       inBtn.disabled=true; outBtn.disabled=true;
     }
   },1000);
 }
 
-/* ---------- GPS ---------- */
 function getLocation(){
   return new Promise((resolve,reject)=>{
-    navigator.geolocation.getCurrentPosition(resolve,reject,{
-      enableHighAccuracy:true, timeout:10000
-    });
+    navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:10000});
   });
 }
 
-/* ---------- ถ่ายรูป ---------- */
 function captureSnapshot(){
   const canvas=document.createElement("canvas");
   canvas.width=video.videoWidth; canvas.height=video.videoHeight;
@@ -404,10 +232,8 @@ function captureSnapshot(){
   return canvas.toDataURL("image/jpeg",0.7);
 }
 
-/* ---------- เช็คอิน / เช็คเอาท์ ---------- */
 async function submitAttendance(action){
   if(!currentMatch) return;
-
   inBtn.disabled=true; outBtn.disabled=true;
   setStatus("กำลังตรวจสอบตำแหน่ง GPS...",true);
 
@@ -415,30 +241,28 @@ async function submitAttendance(action){
   try{ pos=await getLocation(); }
   catch(err){
     setStatus("❌ ไม่สามารถดึงตำแหน่ง GPS ได้ กรุณาเปิดอนุญาตตำแหน่ง",false);
-    inBtn.disabled=false; outBtn.disabled=false;
-    return;
+    inBtn.disabled=false; outBtn.disabled=false; return;
   }
 
   setStatus("กำลังส่งข้อมูล...",true);
-  const image = captureSnapshot();
+  const image=captureSnapshot();
 
   try{
-    const res = await fetch(WEBAPP_URL,{
+    const res=await fetch(WEBAPP_URL,{
       method:"POST",
       headers:{"Content-Type":"text/plain;charset=utf-8"},
       body:JSON.stringify({
-        action:action, secret:API_SECRET,
+        action, secret:API_SECRET,
         empid:currentMatch.empid, name:currentMatch.name,
         department:currentMatch.department||"",
         lat:pos.coords.latitude, lng:pos.coords.longitude,
-        image:image
+        image, lineUserId
       })
     });
-    const data = await res.json();
-
+    const data=await res.json();
     if(data.status==="success"){
       setStatus("",true);
-      showReceipt(action, currentMatch, data, image);
+      showReceipt(action,currentMatch,data,image);
     } else {
       setStatus("❌ "+data.message,false);
       inBtn.disabled=false; outBtn.disabled=false;
@@ -449,37 +273,26 @@ async function submitAttendance(action){
   }
 }
 
-/* ---------- แสดงหน้าสำเร็จ ---------- */
-function showReceipt(action, emp, data, imageDataUrl){
-  const isIn = action==="checkin";
-
-  document.getElementById("receiptIcon").className  = "receipt-icon "+(isIn?"in":"out");
-  document.getElementById("receiptIcon").textContent = isIn?"✅":"🚪";
-  document.getElementById("receiptTitle").className  = "receipt-title "+(isIn?"in":"out");
-  document.getElementById("receiptTitle").textContent = isIn
-    ? "ลงเวลาเข้างานเรียบร้อยแล้ว"
-    : "ลงเวลาออกงานเรียบร้อยแล้ว";
-
-  document.getElementById("receiptPhoto").src = imageDataUrl;
-  document.getElementById("rName").textContent  = emp.name || "-";
-  document.getElementById("rDept").textContent  = emp.department || "-";
-
-  const now = new Date();
-  document.getElementById("rTime").textContent  =
-    now.toLocaleDateString("th-TH",{day:"numeric",month:"long",year:"numeric"})
-    +" เวลา "
-    +now.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
-
-  document.getElementById("rDist").textContent  =
-    data.distance != null ? data.distance+" เมตร" : "-";
-
+function showReceipt(action,emp,data,imageDataUrl){
+  const isIn=action==="checkin";
+  document.getElementById("receiptIcon").className="receipt-icon "+(isIn?"in":"out");
+  document.getElementById("receiptIcon").textContent=isIn?"✅":"🚪";
+  document.getElementById("receiptTitle").className="receipt-title "+(isIn?"in":"out");
+  document.getElementById("receiptTitle").textContent=isIn?"ลงเวลาเข้างานเรียบร้อยแล้ว":"ลงเวลาออกงานเรียบร้อยแล้ว";
+  document.getElementById("receiptPhoto").src=imageDataUrl;
+  document.getElementById("rName").textContent=emp.name||"-";
+  document.getElementById("rDept").textContent=emp.department||"-";
+  const now=new Date();
+  document.getElementById("rTime").textContent=
+    now.toLocaleDateString("th-TH",{day:"numeric",month:"long",year:"numeric"})+
+    " เวลา "+now.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("rDist").textContent=data.distance!=null?data.distance+" เมตร":"-";
   overlay.classList.add("show");
 }
 
 function closeOverlay(){
   overlay.classList.remove("show");
-  inBtn.disabled=false;
-  outBtn.disabled=false;
+  inBtn.disabled=false; outBtn.disabled=false;
 }
 
 function setStatus(msg,ok){
@@ -491,6 +304,5 @@ inBtn.addEventListener("click",()=>submitAttendance("checkin"));
 outBtn.addEventListener("click",()=>submitAttendance("checkout"));
 window.addEventListener("load",init);
 </script>
-
 </body>
 </html>
